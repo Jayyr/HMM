@@ -1,3 +1,79 @@
-CS194 HHM PS 5
+###  README --- CS194 HMM PS 5
 Jae Ryoo
 Saba Khalilnaji
+
+In this project we were responsible for implementing a Hidden Markov Model (HMM) from scratch.
+Programming Language: Python
+Instructions on compiling and running our code:
+_______________________________________________________________________________________________________________________
+Instructor: Yun S. Song
+Out: March 22, 2012
+Due: April 16, 2012
+Problem Set 5
+UC Berkeley, CS194-1: Algorithms for Computational Biology (Spring 2012)
+_________________________
+Instructions:
+HMM implementation
+The goal of this problem set is to implement the key algorithms for HMM discussed in class. Throughout, we will consider the following interesting biological application:
+	Meiotic recombination is an important biological mechanism common to most forms of life. As a consequence of recombination, different positions on the same chromosome may have different genealogical histories. For example, given a pair of homologous sequences, different positions may have different times (denoted TMRCA) to the most recent common ancestor (MRCA), as illustrated in Figure 1. Recently, Li and Durbin (Nature, 475:493-496, 2011) used a hidden Markov model to estimate the position-specific T_MRCA for a pair of sequences. The transition and emission probabilities in their HMM arise from a stochastic genealogical process (called the coalescent), which you do not need to know to do the problems described below.
+
+              -----------------------------------------------------------------------------------------     
+              |                       ||                                                | |           |
+              |                       ||                                                | |           |
+	  4  -|     		      ||                                                | |           |
+              |                       ||                                                | |           |     
+              |                       ||                                                | |           |     
+              |                       ||                                                | |           |     
+          3  -|                       ||                                                | |           |     
+              |                       ||                                                | |           |     
+Time to       |                       ||                                                | |           |     
+MRCA          |                       ||                                                | |           |     
+          2  -|                       ||                                                | |           |     
+              |                     .-..------------.    .------------.                 | .           |     
+              |                     |               |    |            |                 |  |          |     
+              |                     |               |    |            |                 |  |          |     
+          1  -|                     |               |    |            |                 |  |          |     
+              |                     |               |    |            |                 |  |          |
+	      |                     |               |    |            |                 |  |          |
+              |  -------------------.               .----.            .-----------------.  .--------  |     
+              -----------------------------------------------------------------------------------------     
+                 |               |                |               |               |                |       
+                 0               20              40              60              80               100       
+                                                                                                            
+                                                     Position (kb)
+
+Figure 1: Time to the most recent common ancestor along a pair of homologous sequences, each of length 100 kb. Time is measured in units of 2N_e generations, where N_e is the so-called "effective" population size. For humans, an approximate long-term effective population size is N_e = 10,000.
+
+Instruction:
+ - You may use any of the following programming languages: C, C++, Java, Python, Perl, Ruby. Use only the standard libraries for each language. Please provide a document detailing how one can compile and run your code. you should submit your source code and answers to the questions below, via e-mail to both the instructor and the GSI.
+ - You are strongly encouraged to pair up with a fellow student in class.
+ - Download ps5data.tgz from the course webpage. Included in the tar archive is a file called sequences.fasta, which contains a pair of DNA sequences of length L = 100,000 in FASTA format. Consider the following HMM:
+   - The observed symbol x_i in (SIGMA) = {I,D} at position 1 <= i <= L corresponds to whether the two sequences are identical (I) or different (D) at that position.
+   - The hidden state q_i in S = {t_1, t_2, t_3, t_4} at position 1 <= i <= L corresponds to the T_MRCA at that position.
+   - Assume that the hidden random variables {Q_i, 1 <= i <= L} form a homogeneous Markov chain, with transition probabilities a_kl, for k,l in S.
+   - As usual, the probability of emitting symbol (sigma) in (SIGMA) from state k in S is denoted by e_k((sigma)). The parameters of the model are (THETA) = {a_kl, e_k((sigma)), m_k}_{k,l in S; (sigma) in (SIGMA)}, where m_k denotes the marginal probability P(Q_1 = k), which can be regarded as the transition probability a_begin,k.
+
+Remark: We expect P(D|Q = t_j) > P(D|Q=t_i), for t_j > t_i. Why?
+
+Problems:
+	1. Implement the forward and backward algorithms.
+	2. Implement the Baum-Welch algorithm and use it to estimate the parameters of the model. For initialization, use the parameters (THETA)_initial  provided in initial_parameters.txt. Store your estimated parameters (THETA)_estimated  in a file called estimated_parameters.txt.
+	3. In a file called likelihoods.txt, store the log-likelihoods for the initial parameters (THETA)_initial and for your estimated parameters (THETA)_estimated.
+	4. Using the initial parameters (THETA)_initial, produce both Viterbi and posterior decodings, and compute the posterior mean E[T_MRCA | x, (THETA)_initial] for each position. Assume that S = {0.32, 1.75, 4.54, 9.40}. To identify which hidden state should correspond to which time, think about the remark mentioned above.
+		(a) Output your results to decodings_initial.txt in a 3-column format (Viterbi decoding,posterior decoding, posterior mean).
+		(b) Plot your results, together with the true TMRCA in true_tmrca.txt. (In fact, Figure 1 shows the true T_MRCA for the data you are analyzing.) Name your figure file plot_initial.pdf.
+	5. Using your estimated parameters estimated, produce both Viterbi and posterior decodings,and compute the posterior mean E[T_MRCA | x, (THETA)_estimated] for each position.
+		(a) Output your results to decodings_estimated.txt in a 3-column format (Viterbi decoding, posterior decoding, posterior mean).
+		(b) Plot your results, together with the true T_MRCA in true_tmrca.txt. Name your figure file plot_estimated.pdf.
+
+Additional exercise (not to be turned in): Try starting the Baum-Welch algorithm with different initial parameter settings. Do you obtain the same final estimates?
+
+Copyright 2012: Yun S. Song
+_______________________________________________________________________________________________________________________
+## Copyright 2012: Saba Khalilnaji, Jae Young Ryoo
+##
+## Keywords: CS194-1, CS194, HMM
+
+
+
+
