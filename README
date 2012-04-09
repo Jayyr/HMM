@@ -93,7 +93,8 @@ Problems:
 		(b) Plot your results, together with the true T_MRCA in true_tmrca.txt. Name your figure file 
                     plot_estimated.pdf.
 
-Additional exercise (not to be turned in): Try starting the Baum-Welch algorithm with different initial parameter settings. Do you obtain the same final estimates?
+Additional exercise (not to be turned in): Try starting the Baum-Welch algorithm with different initial parameter 
+settings. Do you obtain the same final estimates?
 
 Copyright 2012: Yun S. Song
 _______________________________________________________________________________________________________________________
