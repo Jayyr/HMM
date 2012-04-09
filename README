@@ -14,7 +14,8 @@ UC Berkeley, CS194-1: Algorithms for Computational Biology (Spring 2012)
 _________________________
 Instructions:
 HMM implementation
-The goal of this problem set is to implement the key algorithms for HMM discussed in class. Throughout, we will consider the following interesting biological application:
+The goal of this problem set is to implement the key algorithms for HMM discussed in class. Throughout, we will consider 
+the following interesting biological application:
 	Meiotic recombination is an important biological mechanism common to most forms of life. As a consequence of
 recombination, different positions on the same chromosome may have different genealogical histories. For example, given
 a pair of homologous sequences, different positions may have different times (denoted TMRCA) to the most recent common
