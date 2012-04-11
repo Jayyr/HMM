@@ -21,15 +21,14 @@ def backward(model, emissions):
     b = util.Counter()
     #minor initialization nuance
     for state in model.getStates() : b[state] = 1
-    emissionsReverse = emissions[1:]
-    emissionsReverse.reverse()
-    for q in emissionsReverse:
+    emissions.reverse()
+    for q in emissions[len(emissions)-1]:
         b_prev = util.Counter()
         for state_k in model.getStates():
             b_prev[state_k] = sum([model.a(state_k, state_l)*model.e(state_l, q)*b[state_l] for state_l in model.getStates()])
         b = b_prev.copy()
     for state in model.getStates():
-        b[state] = model.p(state)*model.e(state, emissions[0])*b[state]
+        b[state] = model.p(state)*model.e(state, emissions[len(emissions)-1])*b[state]
     return b.totalCount()
     
     
