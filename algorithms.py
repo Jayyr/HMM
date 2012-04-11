@@ -17,7 +17,11 @@ def forward(model, emissions):
     return f.totalCount()
     
     
-def backward
+def backward(model, emissions):
+    b = util.Counter()
+    
+    
+    return b.totalCount()
     
     
 
