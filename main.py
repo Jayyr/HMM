@@ -19,10 +19,13 @@ def main(args):
 
     markovModel = hmm.HMM(s, q, a, e, p)
     print "HMM", markovModel
-    print "Emission = D, Prob(D)=", algorithms.forward(markovModel, ["D"])
+    print "Forward: Emission = D, Prob(D)=", algorithms.forward(markovModel, ["D"])
     #works for sure up to here
-    print "Emission = D,D, Prob(D,D)=", algorithms.forward(markovModel, ["D", "D"])
+    print "Forward: Emission = D,D, Prob(D,D)=", algorithms.forward(markovModel, ["D", "D"])
     
+    print "Backward: Emission = D, Prob(D)=", algorithms.backward(markovModel, ["D"])
+    #works for sure up to here
+    print "Backward: Emission = D,D, Prob(D,D)=", algorithms.backward(markovModel, ["D", "D"])
 if __name__== '__main__':
     main(sys.argv[1:])
     

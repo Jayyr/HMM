@@ -24,6 +24,8 @@ class HMM:
         if not self.isAHiddenState(k):
             print "ERROR k=%s is not a hidden state" % k
             return
+        if k not in self.marginal:
+            return 0.0
         return self.marginal[k]
         
     def getStates(self):
@@ -60,8 +62,8 @@ class HMM:
     def __str__(self):
         s = "Hidden States:\n" + str(self.stateSpace) + "\n"
         s += "Emission States:\n" + str(self.emissions) + "\n"
-        s += "Tranistion Probabilities:\n" + str(self.a) + "\n"
-        s += "Emission Probabilities:\n" + str(self.e) + "\n"
+        s += "Tranistion Probabilities:\n" + str(self.transitionProbabilities) + "\n"
+        s += "Emission Probabilities:\n" + str(self.emissionProbabilities) + "\n"
         s += "Marginals:\n" + str(self.marginal)
         return s
     
