@@ -1,7 +1,6 @@
 def getSequenceList(path):
     fastaFile = open(path)
     sequences = []
-    sequence = None
     for line in fastaFile:
         if ">" in line and not sequence:
             sequence = ""

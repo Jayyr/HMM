@@ -1,4 +1,4 @@
-import sys, math, hmm, algorithms
+import sys, math, hmm, algorithms, util
 
 def printHelp():
     print "HMM.py Help message"
@@ -24,9 +24,13 @@ def main(args):
     print "Forward: Emission = D,D, Prob(D,D)=", algorithms.forward(markovModel, ["D", "D"])
     
     print "Backward: Emission = D, Prob(D)=", algorithms.backward(markovModel, ["D"])
-    #works for sure up to here
     print "Backward: Emission = D,D, Prob(D,D)=", algorithms.backward(markovModel, ["D", "D"])
+    
+    sequences = util.getSequenceList("./sequences.fasta")
+    print "Baum-Welch Training Sequence Count: ", len(sequences)
+    
+            
+            
+            
 if __name__== '__main__':
     main(sys.argv[1:])
-    
-

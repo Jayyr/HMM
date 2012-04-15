@@ -31,5 +31,8 @@ def backward(model, emissions):
         b[state] = model.p(state)*model.e(state, emissions[len(emissions)-1])*b[state]
     return b.totalCount()
     
+def baum_welch(initialModel, emissions):
+    print "Under Construction"
+    
     
 
