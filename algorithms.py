@@ -22,7 +22,7 @@ def backward(model, emissions):
     #minor initialization nuance
     for state in model.getStates() : b[state] = 1
     emissions.reverse()
-    for q in emissions[len(emissions)-1]:
+    for q in emissions[:len(emissions)-1]:
         b_prev = util.Counter()
         for state_k in model.getStates():
             b_prev[state_k] = sum([model.a(state_k, state_l)*model.e(state_l, q)*b[state_l] for state_l in model.getStates()])
