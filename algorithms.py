@@ -1,7 +1,21 @@
 import sys, math, util, hmm
 
 """
-The forward algorith
+Helper Methods
+
+logSum: takes in a list of logs and performs an efficient sum of their exponentials
+using the identity, R = P + log(1 + exp(Q - P))
+where P = log(p), Q = log(q)
+"""
+
+def logSum(listToSum):
+    sumToReturn = listToSum[0]
+    for i in range(1, len(listToSum)):
+        sumToReturn = sumToReturn + math.log(1 + math.exp(listToSum[i] - sumToReturn))
+    return sumToReturn
+
+"""
+The forward algorithm
 This calculates P(X|Theta)
 f_k is a counter where the keys are k
 a list of f_k represents the passage of time
@@ -17,6 +31,25 @@ def forward(model, emissions):
             f_next[state_l] = model.e(state_l, b) * sum([model.a(state_k, state_l)*f[state_k] for state_k in model.getStates()])
         f = f_next.copy()
     return f.totalCount()
+
+"""
+The forward algorithm in log space
+This calculates P(X|Theta)
+f_k is a counter where the keys are k
+a list of f_k represents the passage of time
+where the index is t
+"""
+
+def forward_log(model, emissions):
+    F = util.Counter()
+    for state in model.getStates():
+        F[state] = model.p_log(state) + model.e_log(state, emissions[0])  
+    for b in emissions[1:]:
+        F_next = util.Counter()
+        for state_l in model.getStates():
+            F_next[state_l] = model.e_log(state_l, b) + logSum([model.a_log(state_k, state_l) + F[state_k] for state_k in model.getStates()])
+        F = F_next.copy()
+    return logSum(F.values())
     
 """
 For the baum-welch algorithm we need f_k(t)
@@ -37,6 +70,23 @@ def getForwardList(model, emissions):
         f = f_next.copy()
         forwardList.append(f)
     return forwardList
+
+"""
+getForwardList_log:
+The same thing as getForwardList, but returns log values
+"""
+def getForwardList_log(model, emissions):
+    F = util.Counter()
+    for state in model.getStates():
+        F[state] = model.p_log(state) + model.e_log(state, emissions[0])
+    forwardList_log = [F]  
+    for b in emissions[1:]:
+        F_next = util.Counter()
+        for state_l in model.getStates():
+            F_next[state_l] = model.e_log(state_l, b) + logSum([model.a_log(state_k, state_l) + F[state_k] for state_k in model.getStates()])
+        F = F_next.copy()
+        forwardList_log.append(F)
+    return forwardList_log
     
 """
 The backward algorithm
@@ -55,6 +105,24 @@ def backward(model, emissions):
     for state in model.getStates():
         b[state] = model.p(state)*model.e(state, emissions[len(emissions)-1])*b[state]
     return b.totalCount()
+
+"""
+backward_log:
+The same thing as backward, but returns log values
+"""
+def backward_log(model, emissions):
+    B = util.Counter()
+    #minor initialization nuance
+    for state in model.getStates() : B[state] = math.log(1)
+    emissions.reverse()
+    for q in emissions[:len(emissions)-1]:
+        B_prev = util.Counter()
+        for state_k in model.getStates():
+            B_prev[state_k] = logSum([model.a_log(state_k, state_l) + model.e_log(state_l, q) + B[state_l] for state_l in model.getStates()])
+        B = B_prev.copy()
+    for state in model.getStates():
+        B[state] = model.p_log(state) + model.e_log(state, emissions[len(emissions)-1]) + B[state]
+    return logSum(B.values())
     
 """
 Analogous to getForwardList:
@@ -86,6 +154,29 @@ def getBackwardList(model, emissions):
     backwardList.append(b_last)
     backwardList.reverse()
     return backwardList
+
+"""
+getBackwardList_log
+The same thing as getBackwardList, but returns log values
+"""
+def getBackwardList_log(model, emissions):
+    B = util.Counter()
+    #minor initialization nuance
+    for state in model.getStates() : B[state] = math.log(1)
+    emissions.reverse()
+    backwardList_log = []
+    for q in emissions[:len(emissions)-1]:
+        B_prev = util.Counter()
+        for state_k in model.getStates():
+            B_prev[state_k] = logSum([model.a_log(state_k, state_l) + model.e_log(state_l, q) + B[state_l] for state_l in model.getStates()])
+        B = B_prev.copy()
+        backwardList_log.append(B)
+    B_last = util.Counter()
+    for state in model.getStates():
+        B_last[state] = model.p_log(state) + model.e_log(state, emissions[len(emissions)-1]) + B[state]
+    backwardList_log.append(B_last)
+    backwardList_log.reverse()
+    return backwardList_log
 
 
 """
