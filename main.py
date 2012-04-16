@@ -14,7 +14,7 @@ def main(args):
     q = ['D', 'I']
     x = seqCompare.compareSequences('sequences.fasta')
 
-    markovModel = hmm.HMM(s, q, a, e, p)
+    markovModel = hmm.HMM(False,s, q, a, e, p)
     print "HMM", markovModel
     print "Forward: Emission = D, Prob(D)=", algorithms.forward(markovModel, x)
     print "Forward: Emission = D, Prob(D)=", algorithms.forward(markovModel, ['D'])

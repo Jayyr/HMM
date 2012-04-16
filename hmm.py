@@ -65,6 +65,7 @@ class HMM:
     # You shouldn't need to call these directly #
     #############################################
     """
+    bool_log is a boolean that is true if parameters are log, false if normal values
     s is a list of hidden states
     q is a list of emission states
     a is a dictionary of transition probailities k to l with (k,l) as keys
@@ -72,20 +73,34 @@ class HMM:
     marginal is the marginal probability that Q_1 = k, this is a dictionary with 
         k as the key
     """
-    def __init__(self, s, q, a, e, marginal):
+    def __init__(self,bool_log, s, q, a, e, marginal):
         self.stateSpace = s
         self.emissions = q
-        self.transitionProbabilities = a
-        self.transitionProbabilities_log = self.makeLog(a)
-        self.emissionProbabilities = e
-        self.emissionProbabilities_log = self.makeLog(e)
-        self.marginal = marginal
-        self.marginal_log = self.makeLog(marginal)
+        if n_l:
+            self.transitionProbabilities_log = a
+            self.emissionProbabilities_log = e
+            self.marginal_log = marginal
+            self.transitionProbabilities = self.makeExp(a)
+            self.emissionProbabilities = self.makeExp(e)
+            self.marginal = self.makeExp(marginal)
+        else:
+            self.transitionProbabilities = a
+            self.transitionProbabilities_log = self.makeLog(a)
+            self.emissionProbabilities = e
+            self.emissionProbabilities_log = self.makeLog(e)
+            self.marginal = marginal
+            self.marginal_log = self.makeLog(marginal)
 
     def makeLog(self, param):
         newParam = {}
         for k, v in param.iteritems():
             newParam[k] = math.log(float(v))
+        return newParam
+    
+    def makeExp(self, param):
+        newParam = {}
+        for k, v in param.iteritems():
+            newParam[k] = math.exp(float(v))
         return newParam
         
     def isAHiddenState(self, s):
