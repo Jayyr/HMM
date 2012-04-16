@@ -76,7 +76,7 @@ class HMM:
     def __init__(self,bool_log, s, q, a, e, marginal):
         self.stateSpace = s
         self.emissions = q
-        if n_l:
+        if bool_log:
             self.transitionProbabilities_log = a
             self.emissionProbabilities_log = e
             self.marginal_log = marginal
