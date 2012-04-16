@@ -85,7 +85,6 @@ class HMM:
     def makeLog(self, param):
         newParam = {}
         for k, v in param.iteritems():
-            print k,v
             newParam[k] = math.log(float(v))
         return newParam
         
