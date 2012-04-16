@@ -11,6 +11,13 @@ class HMM:
             print "ERROR: k=%s or l=%s not a hidden state" % (k,l)
             return
         
+    def a_log(self,k,l):
+        if self.isAHiddenState(k) and self.isAHiddenState(l):
+            return self.transitionProbabilities_log[(k,l)]
+        else:
+            print "ERROR: k=%s or l=%s not a hidden state" % (k,l)
+            return
+        
     def e(self,k,b):
         if not self.isAnEmission(b):
             print "ERROR: b=%s is not an emission" % b
@@ -19,15 +26,33 @@ class HMM:
             print "ERROR k=%s is not a hidden state" % k
             return
         return self.emissionProbabilities[(k,b)]
+    
+    def e_log(self,k,b):
+        if not self.isAnEmission(b):
+            print "ERROR: b=%s is not an emission" % b
+            return
+        if not self.isAHiddenState(k):
+            print "ERROR k=%s is not a hidden state" % k
+            return
+        return self.emissionProbabilities_log[(k,b)]
         
     def p(self, k):
         if not self.isAHiddenState(k):
             print "ERROR k=%s is not a hidden state" % k
             return
         return self.marginal[k]
+
+    def p_log(self, k):
+        if not self.isAHiddenState(k):
+            print "ERROR k=%s is not a hidden state" % k
+            return
+        return self.marginal_log[k]
         
     def getMarginal(self):
         return self.marginal
+
+    def getMarginal_log(self):
+        return self.marginal_log
         
     def getStates(self):
         return self.stateSpace
@@ -51,9 +76,18 @@ class HMM:
         self.stateSpace = s
         self.emissions = q
         self.transitionProbabilities = a
+        self.transitionProbabilities_log = self.makeLog(a)
         self.emissionProbabilities = e
+        self.emissionProbabilities_log = self.makeLog(e)
         self.marginal = marginal
-    
+        self.marginal_log = self.makeLog(marginal)
+
+    def makeLog(self, param):
+        newParam = {}
+        for k, v in param:
+            newParam[k] = math.log(v)
+        return newParam
+        
     def isAHiddenState(self, s):
         return s in self.stateSpace
         
