@@ -84,11 +84,18 @@ def getBackwardList(model, emissions):
 """
 The Baum-Welch Algorithm
 
+The model is improved until the difference
+between the log likelihood of the current model
+previous model are under the threshold
+
+TODO only store last 2 likelihoods instead of entire
+list because you may do like a jillion iterations and we dont
+need to store that many likelihoods in memory
 """
+
 def baum_welch(model, sequences, threshold):
-    #for now threshold is just an iteration count
-    #make this log-likelihood threshold
-    while threshold > 0:
+    likelihoods = [sum([math.log(forward(model, seq)) for seq in sequences])]
+    while len(likelihoods) < 2 or ((likelihoods[len(likelihoods)-1] - likelihoods[len(likelihoods)-2]) > threshold):
         #E-Step
         expectedTransitions = util.Counter()
         for k,l in [(k,l) for k in model.getStates() for l in model.getStates()]:
@@ -109,7 +116,6 @@ def baum_welch(model, sequences, threshold):
                     if sequence[t] == b:
                         total += forwardList[t][k]*backwardList[t][k]/forward(model, sequence[:t+1])
             expectedEmissions[(k,b)] = total
-        print expectedEmissions
         #M-Step
         new_a = {}
         for k,l in [(k,l) for k in model.getStates() for l in model.getStates()]:
@@ -118,12 +124,13 @@ def baum_welch(model, sequences, threshold):
         for k,b in [(k,b) for b in model.getEmissions() for k in model.getStates()]:
             new_e[(k,b)] = expectedEmissions[(k,b)]/sum([expectedEmissions[(k,b_2)] for b_2 in model.getEmissions()])
         model = hmm.HMM(model.getStates(), model.getEmissions(), new_a, new_e, model.getMarginal())
-        print new_a
-        print new_e
-        print "\n\n"
-        threshold -= 1
-                
-                
+        #update likelihood
+        likelihoods.append(sum([math.log(forward(model, seq)) for seq in sequences]))
+    #store likelihood to file
+    f = open("likelihoods.txt", "w")
+    for l in likelihoods:
+        f.write("%.78g\n" % l)
+    f.close()      
             
             
             
@@ -133,6 +140,4 @@ def baum_welch(model, sequences, threshold):
             
             
             
-            
-            
-  
+ 

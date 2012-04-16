@@ -28,7 +28,7 @@ def main(args):
     
     #sequences = util.getSequenceList("./sequences.fasta")
     #print "Baum-Welch Training Sequence Count: ", len(sequences)
-    algorithms.baum_welch(markovModel, [list("DIDIDIDIDIDIDDIDIDIDIDIDID")], 10)
+    algorithms.baum_welch(markovModel, [list("DDDDDDDDDDDDDDDDDDDDDDDDDDDDD")], 1e-10)
             
             
             
