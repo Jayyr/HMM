@@ -84,8 +84,9 @@ class HMM:
 
     def makeLog(self, param):
         newParam = {}
-        for k, v in param:
-            newParam[k] = math.log(v)
+        for k, v in param.iteritems():
+            print k,v
+            newParam[k] = math.log(float(v))
         return newParam
         
     def isAHiddenState(self, s):
