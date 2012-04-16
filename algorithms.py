@@ -2,8 +2,8 @@ import sys, math, util, hmm
 
 """
 The forward algorith
-
-f_k is a counter where the key are k
+This calculates P(X|Theta)
+f_k is a counter where the keys are k
 a list of f_k represents the passage of time
 where the index is t
 """
@@ -17,6 +17,7 @@ def forward(model, emissions):
             f_next[state_l] = model.e(state_l, b) * sum([model.a(state_k, state_l)*f[state_k] for state_k in model.getStates()])
         f = f_next.copy()
     return f.totalCount()
+    
 """
 For the baum-welch algorithm we need f_k(t)
 for every state k and for every t in len(emission)
@@ -39,6 +40,7 @@ def getForwardList(model, emissions):
     
 """
 The backward algorithm
+This calculates P(X|Theta)
 """      
 def backward(model, emissions):
     b = util.Counter()
@@ -55,7 +57,12 @@ def backward(model, emissions):
     return b.totalCount()
     
 """
-Analogous to getForwardList
+Analogous to getForwardList:
+For the baum-welch algorithm we need b_l(t)
+for every state l and for every t in len(emission)
+instead of recalculating the same previous values
+again we're just gonna store them sequentially
+in a list of dictionaries
 
 Note: we have to return the reversed list because
 we iterate backwards and in order for the list index, i 
@@ -104,6 +111,10 @@ def baum_welch(model, sequences, threshold):
                 forwardList = getForwardList(model, sequence)
                 backwardList = getBackwardList(model, sequence)
                 for t in range(len(sequence)-1):
+                    """
+                    I went from 0 to L-1 because e(l,t+1) doesnt exist at L idk why the notes don't go from 0 to L-1
+                    is this wrong? b_k(t+1) also doesnt exist but I can easily make that one
+                    """
                     total += (forwardList[t][k]*model.a(k,l)*model.e(l,sequence[t+1])*backwardList[t+1][l])/forward(model, sequence[:t+1])
             expectedTransitions[(k,l)] = total
         expectedEmissions = util.Counter()
@@ -112,7 +123,7 @@ def baum_welch(model, sequences, threshold):
             for sequence in sequences:
                 forwardList = getForwardList(model, sequence)
                 backwardList = getBackwardList(model, sequence)
-                for t in range(len(sequence)-1):
+                for t in range(len(sequence)):
                     if sequence[t] == b:
                         total += forwardList[t][k]*backwardList[t][k]/forward(model, sequence[:t+1])
             expectedEmissions[(k,b)] = total
