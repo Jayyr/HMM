@@ -26,6 +26,9 @@ class HMM:
             return
         return self.marginal[k]
         
+    def getMarginal(self):
+        return self.marginal
+        
     def getStates(self):
         return self.stateSpace
     

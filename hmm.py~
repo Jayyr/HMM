@@ -24,9 +24,10 @@ class HMM:
         if not self.isAHiddenState(k):
             print "ERROR k=%s is not a hidden state" % k
             return
-        if k not in self.marginal:
-            return 0.0
         return self.marginal[k]
+        
+    def getMarginal(self):
+        return self.marginal
         
     def getStates(self):
         return self.stateSpace

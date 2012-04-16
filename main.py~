@@ -26,9 +26,9 @@ def main(args):
     print "Backward: Emission = D, Prob(D)=", algorithms.backward(markovModel, ["D"])
     print "Backward: Emission = D,D, Prob(D,D)=", algorithms.backward(markovModel, ["D", "D"])
     
-    sequences = util.getSequenceList("./sequences.fasta")
-    print "Baum-Welch Training Sequence Count: ", len(sequences)
-    
+    #sequences = util.getSequenceList("./sequences.fasta")
+    #print "Baum-Welch Training Sequence Count: ", len(sequences)
+    algorithms.baum_welch(markovModel, [list("DIDIDIDIDIDIDDIDIDIDIDIDID")], 10)
             
             
             
