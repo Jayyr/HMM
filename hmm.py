@@ -59,6 +59,18 @@ class HMM:
     
     def getEmissions(self):
         return self.emissions
+
+    def getTransitionProbabilities(self):
+        return self.transitionProbabilities
+
+    def getTransitionProbabilities_log(self):
+        return self.transitionProbabilities_log
+
+    def getEmissionProbabilities(self):
+        return self.emissionProbabilities
+
+    def getEmissionProbabilities_log(self):
+        return self.emissionProbabilities_log
         
     #############################################
     #             Helper methods:               #          
