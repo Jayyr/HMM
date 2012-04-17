@@ -9,6 +9,9 @@ where P = log(p), Q = log(q)
 """
 
 def logSum(listToSum):
+    if len(listToSum) == 0:
+        print "Error: Transition Probability of 0"
+        return
     sumToReturn = listToSum[0]
     for i in range(1, len(listToSum)):
         sumToReturn = sumToReturn + math.log(1 + math.exp(listToSum[i] - sumToReturn))
@@ -190,6 +193,68 @@ TODO only store last 2 likelihoods instead of entire
 list because you may do like a jillion iterations and we dont
 need to store that many likelihoods in memory
 """
+def baum_welch_log(model, sequences, threshold, numRuns):
+    for n in range(numRuns):
+        print "BW_Iteration: ", n
+        sequenceFBList = []
+        for sequence in sequences:
+            forwardList = getForwardList_log(model, sequence)
+            forwardLog = logSum([forwardList[len(forwardList)-1][state] for state in model.getStates()])
+            backwardList = getBackwardList_log(model, sequence)
+            sequenceFBList.append((forwardList, forwardLog, backwardList))
+        #E-Step: Calculating the expected Transisions (A)
+        expectedTransitions = util.Counter()
+        print "BW_transitions"
+        for k,l in [(k,l) for k in model.getStates() for l in model.getStates()]:
+            seqListA = []
+            for i in range(len(sequences)):
+                sequence = sequences[i]
+                forwardList = sequenceFBList[i][0]
+                forwardLog = sequenceFBList[i][1]
+                backwardList = sequenceFBList[i][2]
+                sumListA = []
+                for i in range(len(sequence)-1):
+                    sumListA.append(forwardList[i][k] + model.a_log(k,l) + model.e_log(l, sequence[i+1]) + backwardList[i+1][l])
+                if len(sumListA) == 0:
+                    print "Error: Transition Probability of 0 for Baum-Welch working in log-space"
+                    return
+                seqListA.append(logSum(sumListA) - forwardLog)
+            if len(seqListA) == 0:
+                print "Error: Transition Probability of 0 for Baum-Welch working in log-space"
+                return
+            expectedTransitions[(k,l)] = logSum(seqListA)
+        #E-Step: Calculating the expected emissions (E)
+        expectedEmissions = util.Counter()
+        print "BW_emissions"
+        for k,b in [(k,b) for k in model.getStates() for b in model.getEmissions()]:
+            seqListB = []
+            for i in range(len(sequences)):
+                sequence = sequences[i]
+                forwardList = sequenceFBList[i][0]
+                forwardLog = sequenceFBList[i][1]
+                backwardList = sequenceFBList[i][2]
+                sumListB = []
+                for i in range(len(sequence)):
+                    if sequence[i] == b:
+                        sumListB.append(forwardList[i][k] + backwardList[i][k])
+                if len(sumListB) == 0:
+                    print "Error: Transition Probability of 0 for Baum-Welch working in log-space"
+                    return
+                seqListB.append(logSum(sumListB) - forwardLog)
+            if len(seqListB) == 0:
+                print "Error: Transition Probability of 0 for Baum-Welch working in log-space"
+                return
+            expectedEmissions[(k,b)] = logSum(seqListB)
+        #M-Step
+        print "BW_M-STEP"
+        new_a = {}
+        for k,l in [(k,l) for k in model.getStates() for l in model.getStates()]:
+            new_a[(k,l)] = expectedTransitions[(k,l)] - logSum([expectedTransitions[(k,l_2)] for l_2 in model.getStates()])
+        new_e = {}
+        for k,b in [(k,b) for k in model.getStates() for b in model.getEmissions()]:
+            new_e[(k,b)] = expectedEmissions[(k,b)] - logSum([expectedEmissions[(k,b_2)] for b_2 in model.getEmissions()])
+        model = hmm.HMM(True, model.getStates(), model.getEmissions(), new_a, new_e, model.getMarginal_log())
+    return model
 
 def baum_welch(model, sequences, threshold):
     likelihoods = [sum([math.log(forward(model, seq)) for seq in sequences])]
@@ -202,11 +267,7 @@ def baum_welch(model, sequences, threshold):
                 forwardList = getForwardList(model, sequence)
                 backwardList = getBackwardList(model, sequence)
                 for t in range(len(sequence)-1):
-                    """
-                    I went from 0 to L-1 because e(l,t+1) doesnt exist at L idk why the notes don't go from 0 to L-1
-                    is this wrong? b_k(t+1) also doesnt exist but I can easily make that one
-                    """
-                    total += (forwardList[t][k]*model.a(k,l)*model.e(l,sequence[t+1])*backwardList[t+1][l])/forward(model, sequence[:t+1])
+                    total += (forwardList[t][k]*model.a(k,l)*model.e(l,sequence[t+1])*backwardList[t+1][l])/forward(model, sequence)
             expectedTransitions[(k,l)] = total
         expectedEmissions = util.Counter()
         for k,b in [(k,b) for b in model.getEmissions() for k in model.getStates()]:
@@ -225,7 +286,7 @@ def baum_welch(model, sequences, threshold):
         new_e = {}
         for k,b in [(k,b) for b in model.getEmissions() for k in model.getStates()]:
             new_e[(k,b)] = expectedEmissions[(k,b)]/sum([expectedEmissions[(k,b_2)] for b_2 in model.getEmissions()])
-        model = hmm.HMM(model.getStates(), model.getEmissions(), new_a, new_e, model.getMarginal())
+        model = hmm.HMM(False, model.getStates(), model.getEmissions(), new_a, new_e, model.getMarginal())
         #update likelihood
         likelihoods.append(sum([math.log(forward(model, seq)) for seq in sequences]))
     #store likelihood to file
@@ -234,6 +295,7 @@ def baum_welch(model, sequences, threshold):
         f.write("%.78g\n" % l)
     f.close()      
             
+<<<<<<< HEAD
             
 def decodings(model, emissions, fileName):
     V = util.Counter()
@@ -275,5 +337,7 @@ def decodings(model, emissions, fileName):
         values.append((lastState, posterior[i+1][0], posterior[i+1][1]))
     f = open(fileName, 'w')
     for v in values:
-        f.write("%.2f\t%.2f\t%.2e\n" % v)
+        f.write("%d\t%d\t%.2e\n" % v)
     f.close()
+=======
+>>>>>>> 13adb4e7674b59ad80a0ff2a58c3f370f9a8027d
