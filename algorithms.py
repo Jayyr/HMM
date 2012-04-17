@@ -335,6 +335,6 @@ def decodings(model, emissions, fileName):
         values.append((lastState, posterior[i+1][0], posterior[i+1][1]))
     f = open(fileName, 'w')
     for v in values:
-        f.write("%d\t%d\t%.2e\n" % v)
+        f.write("%d %d %.2e\n" % v)
     f.close()
 

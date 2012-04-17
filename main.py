@@ -22,9 +22,9 @@ def main(args):
     print "Backward: Emission = D, Prob(D)=", algorithms.backward(markovModel, ['D'])
     print "Backward: Emission = D,D, Prob(D,D)=", algorithms.backward(markovModel, ['D', 'D'])
     """
-    #newModel = algorithms.baum_welch(markovModel, x, 1e-10)
+    newModel = algorithms.baum_welch_log(markovModel, x, 1e-10)
     algorithms.decodings(markovModel, x, "decodings_initial.txt") 
-    #algorithms.decodings(markovModel, x, "decodings_estimated.txt") 
+    algorithms.decodings(newModel, x, "decodings_estimated.txt") 
             
 if __name__== '__main__':
     main(sys.argv[1:])

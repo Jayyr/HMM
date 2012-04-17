@@ -295,8 +295,6 @@ def baum_welch(model, sequences, threshold):
         f.write("%.78g\n" % l)
     f.close()      
             
-<<<<<<< HEAD
-            
 def decodings(model, emissions, fileName):
     V = util.Counter()
     ptr = util.Counter()
@@ -339,5 +337,4 @@ def decodings(model, emissions, fileName):
     for v in values:
         f.write("%d\t%d\t%.2e\n" % v)
     f.close()
-=======
->>>>>>> 13adb4e7674b59ad80a0ff2a58c3f370f9a8027d
+
