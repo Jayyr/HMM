@@ -7,7 +7,7 @@ Programming Language: Python
 
 
 INSTRUCTIONS on compiling and running our code:
-Get into the file HMM_Khalilnaji_Jae
+Get into the file HMM_Khalilnaji_Ryoo
 on the command line$python main.py sequences.fasta initial_parameters.txt
 
 you should get the following files:
