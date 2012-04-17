@@ -8,7 +8,8 @@ using the identity, R = P + log(1 + exp(Q - P))
 where P = log(p), Q = log(q)
 """
 
-def logSum(listToSum):
+def logSum(listToSum1):
+    listToSum = listToSum1[:]
     if len(listToSum) == 0:
         print "Error: Transition Probability of 0"
         return
@@ -24,7 +25,8 @@ f_k is a counter where the keys are k
 a list of f_k represents the passage of time
 where the index is t
 """
-def forward(model, emissions):
+def forward(model, emissions1):
+    emissions = emissions1[:]
     f = util.Counter()
     for state in model.getStates():
         f[state] = model.p(state)*model.e(state, emissions[0])  
@@ -43,7 +45,8 @@ a list of f_k represents the passage of time
 where the index is t
 """
 
-def forward_log(model, emissions):
+def forward_log(model, emissions1):
+    emissions = emissions1[:]
     F = util.Counter()
     for state in model.getStates():
         F[state] = model.p_log(state) + model.e_log(state, emissions[0])  
@@ -61,7 +64,8 @@ instead of recalculating the same previous values
 again we're just gonna store them sequentially
 in a list of dictionaries
 """
-def getForwardList(model, emissions):
+def getForwardList(model, emissions1):
+    emissions = emissions1[:]
     f = util.Counter()
     for state in model.getStates():
         f[state] = model.p(state)*model.e(state, emissions[0])
@@ -78,7 +82,8 @@ def getForwardList(model, emissions):
 getForwardList_log:
 The same thing as getForwardList, but returns log values
 """
-def getForwardList_log(model, emissions):
+def getForwardList_log(model, emissions1):
+    emissions = emissions1[:]
     F = util.Counter()
     for state in model.getStates():
         F[state] = model.p_log(state) + model.e_log(state, emissions[0])
@@ -95,7 +100,8 @@ def getForwardList_log(model, emissions):
 The backward algorithm
 This calculates P(X|Theta)
 """      
-def backward(model, emissions):
+def backward(model, emissions1):
+    emissions = emissions1[:]
     b = util.Counter()
     #minor initialization nuance
     for state in model.getStates() : b[state] = 1
@@ -113,7 +119,8 @@ def backward(model, emissions):
 backward_log:
 The same thing as backward, but returns log values
 """
-def backward_log(model, emissions):
+def backward_log(model, emissions1):
+    emissions = emissions1[:]
     B = util.Counter()
     #minor initialization nuance
     for state in model.getStates() : B[state] = math.log(1)
@@ -139,7 +146,8 @@ Note: we have to return the reversed list because
 we iterate backwards and in order for the list index, i 
 to match t we must reverse the list
 """   
-def getBackwardList(model, emissions):
+def getBackwardList(model, emissions1):
+    emissions = emissions1[:]
     b = util.Counter()
     #minor initialization nuance
     for state in model.getStates() : b[state] = 1
@@ -162,7 +170,8 @@ def getBackwardList(model, emissions):
 getBackwardList_log
 The same thing as getBackwardList, but returns log values
 """
-def getBackwardList_log(model, emissions):
+def getBackwardList_log(model, emissions1):
+    emissions = emissions1[:]
     B = util.Counter()
     #minor initialization nuance
     for state in model.getStates() : B[state] = math.log(1)
