@@ -1,5 +1,17 @@
+# parser.py
+# ----------
+# HMM_TMRCA Project
+# Licensing Information: Please do not distribute.
+# You are free to use and extend these code for educational purposes.
+# ProblemSet written by professor Yun S. Song
+# Solution and code written by Jae Young Ryoo (jay.ryoo@gmail.com) and Saba Khalilnaji
+
 import sys, math, util, hmm
 
+"""
+pparser takes in a textFile and parses an initial_parameters.txt file
+according to the example set in README
+"""
 class pparser:
     def __init__(self):
         self.p = {}
@@ -79,8 +91,8 @@ class pparser:
                             II = float(trip[0])
                             trip = trip[2].lstrip()
                             DD = float(trip)
-                            self.e[(kk, "D")] = DD
-                            self.e[(kk, "I")] = II
+                            self.e[(kk, 'D')] = DD
+                            self.e[(kk, 'I')] = II
                             l = pFile.next()
         except:
             pass

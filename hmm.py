@@ -1,8 +1,20 @@
+# hmm.py
+# ----------
+# HMM_TMRCA Project
+# Licensing Information: Please do not distribute.
+# You are free to use and extend these code for educational purposes.
+# ProblemSet written by professor Yun S. Song
+# Solution and code written by Jae Young Ryoo (jay.ryoo@gmail.com) and Saba Khalilnaji
+
 import sys, math
 
+"""
+HMM Class
+holds both logarithmic and non-logarithmic parameter values as well as
+states and emission sets
+"""
+
 class HMM:
-    #I'm not sure if the error checking is a good idea since we're gonna be changing parameters
-    #once we do EM
     
     def a(self,k,l):
         if self.isAHiddenState(k) and self.isAHiddenState(l):

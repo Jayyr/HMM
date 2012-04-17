@@ -1,15 +1,25 @@
+# algorithms.py
+# ----------
+# HMM_TMRCA Project
+# Licensing Information: Please do not distribute.
+# You are free to use and extend these code for educational purposes.
+# ProblemSet written by professor Yun S. Song
+# Solution and code written by Jae Young Ryoo (jay.ryoo@gmail.com) and Saba Khalilnaji
+
 import sys, math, util, hmm
 
+#######################################################################################
 """
 Helper Methods
 
 logSum: takes in a list of logs and performs an efficient sum of their exponentials
-using the identity, R = P + log(1 + exp(Q - P))
-where P = log(p), Q = log(q)
+using the identity: R = P + log(1 + exp(Q - P)), where P = log(p), Q = log(q)
+
+INPUT: (list) a list of log values
+OUTPUT: (Float) an efficient sum of their exponentials
 """
 
-def logSum(listToSum1):
-    listToSum = listToSum1[:]
+def logSum(listToSum):
     if len(listToSum) == 0:
         print "Error: Transition Probability of 0"
         return
@@ -19,14 +29,36 @@ def logSum(listToSum1):
     return sumToReturn
 
 """
+posterior_decoding
+INPUT: HMM Model, (list) emissions
+OUTPUT: (list) of posteriors
+
+primarily used for testing, not part of project code
+"""
+
+def posterior_decoding(model, emissions):
+    forwardList = getForwardList_log(model, emissions)
+    forwardLog = logSum([forwardList[len(forwardList)-1][state] for state in model.getStates()])
+    backwardList = getBackwardList_log(model, emissions)
+    posterior = []
+    
+    for i in range(len(emissions)):
+        counterOfStates = util.Counter()
+        for s in model.getStates():
+            counterOfStates[(i,s)] = (forwardList[i][s] + backwardList[i][s]) - forwardLog
+        posterior.append(counterOfStates.argMax()[1])
+
+    return posterior
+
+#######################################################################################
+"""
 The forward algorithm
 This calculates P(X|Theta)
 f_k is a counter where the keys are k
 a list of f_k represents the passage of time
 where the index is t
 """
-def forward(model, emissions1):
-    emissions = emissions1[:]
+def forward(model, emissions):
     f = util.Counter()
     for state in model.getStates():
         f[state] = model.p(state)*model.e(state, emissions[0])  
@@ -45,8 +77,7 @@ a list of f_k represents the passage of time
 where the index is t
 """
 
-def forward_log(model, emissions1):
-    emissions = emissions1[:]
+def forward_log(model, emissions):
     F = util.Counter()
     for state in model.getStates():
         F[state] = model.p_log(state) + model.e_log(state, emissions[0])  
@@ -64,8 +95,7 @@ instead of recalculating the same previous values
 again we're just gonna store them sequentially
 in a list of dictionaries
 """
-def getForwardList(model, emissions1):
-    emissions = emissions1[:]
+def getForwardList(model, emissions):
     f = util.Counter()
     for state in model.getStates():
         f[state] = model.p(state)*model.e(state, emissions[0])
@@ -82,8 +112,7 @@ def getForwardList(model, emissions1):
 getForwardList_log:
 The same thing as getForwardList, but returns log values
 """
-def getForwardList_log(model, emissions1):
-    emissions = emissions1[:]
+def getForwardList_log(model, emissions):
     F = util.Counter()
     for state in model.getStates():
         F[state] = model.p_log(state) + model.e_log(state, emissions[0])
@@ -95,13 +124,14 @@ def getForwardList_log(model, emissions1):
         F = F_next.copy()
         forwardList_log.append(F)
     return forwardList_log
-    
+
+
+#######################################################################################    
 """
 The backward algorithm
 This calculates P(X|Theta)
 """      
-def backward(model, emissions1):
-    emissions = emissions1[:]
+def backward(model, emissions):
     b = util.Counter()
     #minor initialization nuance
     for state in model.getStates() : b[state] = 1
@@ -119,8 +149,7 @@ def backward(model, emissions1):
 backward_log:
 The same thing as backward, but returns log values
 """
-def backward_log(model, emissions1):
-    emissions = emissions1[:]
+def backward_log(model, emissions):
     B = util.Counter()
     #minor initialization nuance
     for state in model.getStates() : B[state] = math.log(1)
@@ -145,7 +174,8 @@ in a list of dictionaries
 Note: we have to return the reversed list because
 we iterate backwards and in order for the list index, i 
 to match t we must reverse the list
-"""   
+"""
+
 def getBackwardList(model, emissions1):
     emissions = emissions1[:]
     b = util.Counter()
@@ -166,17 +196,18 @@ def getBackwardList(model, emissions1):
     backwardList.reverse()
     return backwardList
 
+    
 """
 getBackwardList_log
 The same thing as getBackwardList, but returns log values
 """
-def getBackwardList_log(model, emissions1):
-    emissions = emissions1[:]
+def getBackwardList_log(model, emissions):
     B = util.Counter()
     #minor initialization nuance
     for state in model.getStates() : B[state] = math.log(1)
     emissions.reverse()
     backwardList_log = []
+    backwardList_log.append(B)
     for q in emissions[:len(emissions)-1]:
         B_prev = util.Counter()
         for state_k in model.getStates():
@@ -186,35 +217,38 @@ def getBackwardList_log(model, emissions1):
     B_last = util.Counter()
     for state in model.getStates():
         B_last[state] = model.p_log(state) + model.e_log(state, emissions[len(emissions)-1]) + B[state]
-    backwardList_log.append(B_last)
     backwardList_log.reverse()
     return backwardList_log
 
-
+#######################################################################################
 """
 The Baum-Welch Algorithm
 
 The model is improved until the difference
 between the log likelihood of the current model
 previous model are under the threshold
+"""
 
-TODO only store last 2 likelihoods instead of entire
-list because you may do like a jillion iterations and we dont
-need to store that many likelihoods in memory
+
+"""
+baum_welch_log
+this is the baum_welch algorithm running in log-space
+
+INPUT: HMM model, (list) of training sequences, (int) the number of times to run
+OUTPUT: new HMM model based on new estimated parameters
 """
 def baum_welch_log(model, sequences, numRuns):
-    sequences = sequences[:]
     for n in range(numRuns):
-        print "BW_Iteration: ", n
+        print "[baum_welch_log algo] BW_Iteration #: ", n + 1
         sequenceFBList = []
         for sequence in sequences:
-            forwardList = getForwardList_log(model, sequence)
+            forwardList = getForwardList_log(model, sequence[:])
             forwardLog = logSum([forwardList[len(forwardList)-1][state] for state in model.getStates()])
-            backwardList = getBackwardList_log(model, sequence)
+            backwardList = getBackwardList_log(model, sequence[:])
             sequenceFBList.append((forwardList, forwardLog, backwardList))
         #E-Step: Calculating the expected Transisions (A)
         expectedTransitions = util.Counter()
-        print "BW_transitions"
+        print "[baum_welch_log algo] calculating transistions, please wait"
         for k,l in [(k,l) for k in model.getStates() for l in model.getStates()]:
             seqListA = []
             for i in range(len(sequences)):
@@ -235,7 +269,7 @@ def baum_welch_log(model, sequences, numRuns):
             expectedTransitions[(k,l)] = logSum(seqListA)
         #E-Step: Calculating the expected emissions (E)
         expectedEmissions = util.Counter()
-        print "BW_emissions"
+        print "[baum_welch_log algo] calculating emissions, please wait"
         for k,b in [(k,b) for k in model.getStates() for b in model.getEmissions()]:
             seqListB = []
             for i in range(len(sequences)):
@@ -256,7 +290,7 @@ def baum_welch_log(model, sequences, numRuns):
                 return
             expectedEmissions[(k,b)] = logSum(seqListB)
         #M-Step
-        print "BW_M-STEP"
+        print "[baum_welch_log algo] Within the M-Step, please wait"
         new_a = {}
         for k,l in [(k,l) for k in model.getStates() for l in model.getStates()]:
             new_a[(k,l)] = expectedTransitions[(k,l)] - logSum([expectedTransitions[(k,l_2)] for l_2 in model.getStates()])
@@ -266,56 +300,24 @@ def baum_welch_log(model, sequences, numRuns):
         model = hmm.HMM(True, model.getStates(), model.getEmissions(), new_a, new_e, model.getMarginal_log())
     return model
 
-def baum_welch(model, sequences, threshold):
-    likelihoods = [sum([math.log(forward(model, seq)) for seq in sequences])]
-    while len(likelihoods) < 2 or ((likelihoods[len(likelihoods)-1] - likelihoods[len(likelihoods)-2]) > threshold):
-        #E-Step
-        expectedTransitions = util.Counter()
-        for k,l in [(k,l) for k in model.getStates() for l in model.getStates()]:
-            total = 0.0
-            for sequence in sequences:
-                forwardList = getForwardList(model, sequence)
-                backwardList = getBackwardList(model, sequence)
-                for t in range(len(sequence)-1):
-                    total += (forwardList[t][k]*model.a(k,l)*model.e(l,sequence[t+1])*backwardList[t+1][l])/forward(model, sequence)
-            expectedTransitions[(k,l)] = total
-        expectedEmissions = util.Counter()
-        for k,b in [(k,b) for b in model.getEmissions() for k in model.getStates()]:
-            total = 0.0
-            for sequence in sequences:
-                forwardList = getForwardList(model, sequence)
-                backwardList = getBackwardList(model, sequence)
-                for t in range(len(sequence)):
-                    if sequence[t] == b:
-                        total += forwardList[t][k]*backwardList[t][k]/forward(model, sequence[:t+1])
-            expectedEmissions[(k,b)] = total
-        #M-Step
-        new_a = {}
-        for k,l in [(k,l) for k in model.getStates() for l in model.getStates()]:
-            new_a[(k,l)] = expectedTransitions[(k,l)]/sum([expectedTransitions[(k,l_2)] for l_2 in model.getStates()])
-        new_e = {}
-        for k,b in [(k,b) for b in model.getEmissions() for k in model.getStates()]:
-            new_e[(k,b)] = expectedEmissions[(k,b)]/sum([expectedEmissions[(k,b_2)] for b_2 in model.getEmissions()])
-        model = hmm.HMM(False, model.getStates(), model.getEmissions(), new_a, new_e, model.getMarginal())
-        #update likelihood
-        likelihoods.append(sum([math.log(forward(model, seq)) for seq in sequences]))
-    #store likelihood to file
-    f = open("likelihoods.txt", "w")
-    for l in likelihoods:
-        f.write("%.78g\n" % l)
-    f.close()      
-            
-def decodings(model, emissions1):
-    emissions = emissions1[:]
+#######################################################################################
+"""
+decodings (viterbi, posterior, posterior mean)
+INPUT: HMM model, (list) of emissions
+OUTPUT: (list) of 3-tuple: (viterbi, posterior, posterior mean)
+"""
+
+def decodings(model, emissions):
+    stateMapper = {1:0.32, 2:1.75, 3:4.54, 4:9.40}
     V = util.Counter()
     ptr = util.Counter()
-    forwardList = getForwardList_log(model, emissions)
-    backwardList = getBackwardList_log(model, emissions)
+    forwardList = getForwardList_log(model, emissions[:])
+    backwardList = getBackwardList_log(model, emissions[:])
     logLikelihood = logSum([forwardList[len(forwardList)-1][state] for state in model.getStates()])
     for state in model.getStates():
         V[state] = model.p_log(state) + model.e_log(state, emissions[0])
     pointers = []
-    emissionsOld = emissions
+    emissionsOld = emissions[:]
     emissions = emissions[1:]
     for t in range(len(emissions)):
         V_next = util.Counter()
@@ -331,18 +333,18 @@ def decodings(model, emissions1):
         pointers.append(ptr)
         V = V_next.copy()
     lastState = V.argMax()
-    
+    values = [lastState]
     posterior = []
     for i in range(len(emissionsOld)):
         counterOfStates = util.Counter()
         for s in model.getStates():
             counterOfStates[(i,s)] = (forwardList[i][s] + backwardList[i][s]) - logLikelihood
-        mean = sum([state*counterOfStates[(i,state)] for state in model.getStates()])
+        mean = sum([stateMapper[state]*math.exp(counterOfStates[(i,state)]) for state in model.getStates()])
         posterior.append((counterOfStates.argMax()[1], mean))
-    values = [(lastState, posterior[0][0], posterior[0][1])]
     pointers.reverse()
     for i in range(len(pointers)):
         lastState = pointers[i][lastState]
-        values.append((lastState, posterior[i+1][0], posterior[i+1][1]))
-    return values
-
+        values.append(lastState)
+    values.reverse()
+    finalValues = [(values[i],posterior[i][0], posterior[i][1]) for i in range(len(posterior))]    
+    return finalValues

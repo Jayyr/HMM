@@ -1,3 +1,14 @@
+# util.py
+# ----------
+# HMM_TMRCA Project
+# Licensing Information: Please do not distribute.
+# You are free to use and extend these code for educational purposes.
+# ProblemSet written by professor Yun S. Song
+# Solution and code written by Jae Young Ryoo (jay.ryoo@gmail.com) and Saba Khalilnaji
+# Class counter is taken from course CS188 Artifical Intelligence from UC Berkeley
+
+import sys, math
+
 def getSequenceList(path):
     fastaFile = open(path)
     sequences = []
@@ -13,6 +24,42 @@ def getSequenceList(path):
     sequences.append(sequence)
     return sequences
 
+
+"""
+Takes in a fastaFile that contains two sequences and outputs a list of
+comparison values at each position.
+If different: output "D"
+If identital: output "I"
+
+INPUT: fastaFile
+OUTPUT: (list) of emissions
+"""
+def compareSequences(fastaFile):
+    fFile = open(fastaFile)
+    seq1 = ""
+    seq2 = ""
+    seqID = 1
+    if fFile.readline() == ">Sequence 1\n":
+        seqID = 1
+    for line in fFile:
+        if line == ">Sequence 1\n":
+            seqID = 1
+            continue
+        elif line == ">Sequence 2\n":
+            seqID = 2
+            continue
+        if seqID == 1:
+            seq1 += line.strip()
+        elif seqID == 2:
+            seq2 += line.strip()
+    seqCompare = []
+    for i in range(len(seq1)):
+        if seq1[i] == seq2[i]:
+            seqCompare.append('I')
+        else:
+            seqCompare.append('D')
+    fFile.close()
+    return seqCompare
 
 
 """
