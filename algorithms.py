@@ -202,7 +202,8 @@ TODO only store last 2 likelihoods instead of entire
 list because you may do like a jillion iterations and we dont
 need to store that many likelihoods in memory
 """
-def baum_welch_log(model, sequences, threshold, numRuns):
+def baum_welch_log(model, sequences1, threshold, numRuns):
+    sequences = sequences1[:]
     for n in range(numRuns):
         print "BW_Iteration: ", n
         sequenceFBList = []
@@ -304,7 +305,8 @@ def baum_welch(model, sequences, threshold):
         f.write("%.78g\n" % l)
     f.close()      
             
-def decodings(model, emissions, fileName):
+def decodings(model, emissions1):
+    emissions = emissions1[:]
     V = util.Counter()
     ptr = util.Counter()
     forwardList = getForwardList_log(model, emissions)
@@ -342,6 +344,7 @@ def decodings(model, emissions, fileName):
     for i in range(len(pointers)):
         lastState = pointers[i][lastState]
         values.append((lastState, posterior[i+1][0], posterior[i+1][1]))
+    return values
     f = open(fileName, 'w')
     for v in values:
         f.write("%d %d %.2e\n" % v)
