@@ -27,3 +27,9 @@ def outputLikelihoods(likelihoods, fileName):
         outputFile.write('%.2e\n' % i)
     outputFile.close()
     
+def outputDecodings(decodings, fileName):
+    f = open(fileName, 'w')
+    for v in decodings:
+        f.write("%d %d %.2e\n" % v)
+    f.close()
+    

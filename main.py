@@ -1,15 +1,19 @@
 import sys, math, hmm, algorithms, util, parser, seqCompare
 
 def main(args):
+    if(len(args) != 2):
+        print "Error. main.py needs two arguments"
+        print "Example: python main.py sequences.fasta initial_parameters.txt"
+        exit()
     #hardcoding hmm for now, parsing can be done later
     s = [1,2,3,4]
     pParser = parser.pparser()
-    parameters = pParser.parse_Parameters('initial_parameters.txt')
+    parameters = pParser.parse_Parameters(args[1])
     p = parameters[0]
     a = parameters[1]
     e = parameters[2]
     q = ['D', 'I']
-    x = seqCompare.compareSequences('sequences.fasta')
+    x = seqCompare.compareSequences(args[0])
 
     markovModel = hmm.HMM(False,s, q, a, e, p)
     #print "HMM", markovModel
