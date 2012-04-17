@@ -193,7 +193,7 @@ TODO only store last 2 likelihoods instead of entire
 list because you may do like a jillion iterations and we dont
 need to store that many likelihoods in memory
 """
-def baum_welch_log(model, sequences, threshold, numRuns):
+def baum_welch_log(model, sequences, numRuns):
     for n in range(numRuns):
         print "BW_Iteration: ", n
         sequenceFBList = []
