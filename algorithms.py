@@ -295,3 +295,46 @@ def baum_welch(model, sequences, threshold):
         f.write("%.78g\n" % l)
     f.close()      
             
+def decodings(model, emissions, fileName):
+    V = util.Counter()
+    ptr = util.Counter()
+    forwardList = getForwardList_log(model, emissions)
+    backwardList = getBackwardList_log(model, emissions)
+    logLikelihood = logSum([forwardList[len(forwardList)-1][state] for state in model.getStates()])
+    for state in model.getStates():
+        V[state] = model.p_log(state) + model.e_log(state, emissions[0])
+    pointers = []
+    emissionsOld = emissions
+    emissions = emissions[1:]
+    for t in range(len(emissions)):
+        V_next = util.Counter()
+        ptr = util.Counter()
+        for state_l in model.getStates():
+        
+            maxCounter = util.Counter()
+            for state in model.getStates():
+                maxCounter[state] = model.a_log(state, state_l) + V[state]
+            ptr[state_l] = maxCounter.argMax()
+            
+            V_next[state_l] = model.e_log(state_l, emissions[t]) + max([model.a_log(state_k, state_l) + V[state_k] for state_k in model.getStates()])
+        pointers.append(ptr)
+        V = V_next.copy()
+    lastState = V.argMax()
+    
+    posterior = []
+    for i in range(len(emissionsOld)):
+        counterOfStates = util.Counter()
+        for s in model.getStates():
+            counterOfStates[(i,s)] = (forwardList[i][s] + backwardList[i][s]) - logLikelihood
+        mean = sum([state*counterOfStates[(i,state)] for state in model.getStates()])
+        posterior.append((counterOfStates.argMax()[1], mean))
+    values = [(lastState, posterior[0][0], posterior[0][1])]
+    pointers.reverse()
+    for i in range(len(pointers)):
+        lastState = pointers[i][lastState]
+        values.append((lastState, posterior[i+1][0], posterior[i+1][1]))
+    f = open(fileName, 'w')
+    for v in values:
+        f.write("%d %d %.2e\n" % v)
+    f.close()
+

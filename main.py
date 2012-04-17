@@ -1,8 +1,5 @@
 import sys, math, hmm, algorithms, util, parser, seqCompare
 
-def printHelp():
-    print "HMM.py Help message"
-
 def main(args):
     #hardcoding hmm for now, parsing can be done later
     s = [1,2,3,4]
@@ -15,7 +12,8 @@ def main(args):
     x = seqCompare.compareSequences('sequences.fasta')
 
     markovModel = hmm.HMM(False,s, q, a, e, p)
-    print "HMM", markovModel
+    #print "HMM", markovModel
+    """
     print "Forward: Emission = D, Prob(D)=", algorithms.forward(markovModel, x)
     print "Forward: Emission = D, Prob(D)=", algorithms.forward(markovModel, ['D'])
     #works for sure up to here
@@ -23,13 +21,10 @@ def main(args):
     
     print "Backward: Emission = D, Prob(D)=", algorithms.backward(markovModel, ['D'])
     print "Backward: Emission = D,D, Prob(D,D)=", algorithms.backward(markovModel, ['D', 'D'])
-    
-    
-    #sequences = util.getSequenceList("./sequences.fasta")
-    #print "Baum-Welch Training Sequence Count: ", len(sequences)
-    algorithms.baum_welch(markovModel, [list("DDDDDDDDDDDDDDDDDDDDDDDDDDDDD")], 1e-10)
-            
-            
+    """
+    newModel = algorithms.baum_welch_log(markovModel, x, 1e-10)
+    algorithms.decodings(markovModel, x, "decodings_initial.txt") 
+    algorithms.decodings(newModel, x, "decodings_estimated.txt") 
             
 if __name__== '__main__':
     main(sys.argv[1:])
