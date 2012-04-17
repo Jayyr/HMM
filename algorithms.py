@@ -345,8 +345,4 @@ def decodings(model, emissions1):
         lastState = pointers[i][lastState]
         values.append((lastState, posterior[i+1][0], posterior[i+1][1]))
     return values
-    f = open(fileName, 'w')
-    for v in values:
-        f.write("%d %d %.2e\n" % v)
-    f.close()
 
